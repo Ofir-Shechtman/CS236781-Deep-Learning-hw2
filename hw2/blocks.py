@@ -207,8 +207,8 @@ class Linear(Block):
         self.out_features = out_features
 
         # TODO: Create the weight matrix (self.w) and bias vector (self.b).
-        self.w = torch.normal(mean=0, std=1, size=(self.out_features, self.in_features))
-        self.b = torch.normal(mean=0, std=1, size=(1, self.out_features))[0]  # torch.zeros(self.out_features)
+        self.w = torch.normal(mean=0, std=wstd, size=(self.out_features, self.in_features))
+        self.b = torch.normal(mean=0, std=wstd, size=(1, self.out_features))[0]  # torch.zeros(self.out_features)
         # These will store the gradients
         self.dw = torch.zeros_like(self.w)
         self.db = torch.zeros_like(self.b)
@@ -320,22 +320,19 @@ class Dropout(Block):
         assert 0.0 <= p <= 1.0
         self.p = p
 
+
     def forward(self, x, **kw):
         # TODO: Implement the dropout forward pass.
         #  Notice that contrary to previous blocks, this block behaves
         #  differently a according to the current training_mode (train/test).
-        # ====== YOUR CODE: ======
-        raise NotImplementedError()
-        # ========================
-
-        return out
+        if kw.get('training_mode'):
+            return x * torch.bernoulli(torch.ones(x.shape[1])*(1 - self.p))
+        else:
+            return x
 
     def backward(self, dout):
         # TODO: Implement the dropout backward pass.
-        # ====== YOUR CODE: ======
-        raise NotImplementedError()
-        # ========================
-
+        dx = dout
         return dx
 
     def params(self):
@@ -433,16 +430,20 @@ class MLP(Block):
         """
 
         # TODO: Build the MLP architecture as described.
-        get_act = lambda param: {'relu': ReLU(), 'sigmoid': Sigmoid()}.get(param)
+        get_act = lambda param: {'relu': ReLU, 'sigmoid': Sigmoid}.get(param)
         blocks = []
         if not hidden_features:
             blocks.append(Linear(in_features, num_classes))
         else:
             blocks.append(Linear(in_features, hidden_features[0]))
-            blocks.append(get_act(activation))
+            blocks.append(get_act(activation)())
+            if dropout:
+                blocks.append(Dropout(dropout))
             for hf in range(len(hidden_features) - 1):
                 blocks.append(Linear(hidden_features[hf], hidden_features[hf + 1]))
-                blocks.append(get_act(activation))
+                blocks.append(get_act(activation)())
+                if dropout:
+                    blocks.append(Dropout(dropout))
             blocks.append(Linear(hidden_features[-1], num_classes))
 
         self.sequence = Sequential(*blocks)

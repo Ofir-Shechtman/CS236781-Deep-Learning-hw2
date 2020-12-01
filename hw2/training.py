@@ -64,12 +64,13 @@ class Trainer(abc.ABC):
 
         best_acc = None
         epochs_without_improvement = 0
+        prev_mean_loss = None
 
         for epoch in range(num_epochs):
             verbose = False  # pass this to train/test_epoch.
             if epoch % print_every == 0 or epoch == num_epochs - 1:
                 verbose = True
-            self._print(f"--- EPOCH {epoch + 1}/{num_epochs} ---", verbose)
+            self._print(f"--- EPOCH {epoch+1}/{num_epochs} ---", verbose)
 
             # TODO: Train & evaluate for one epoch
             #  - Use the train/test_epoch methods.
@@ -79,9 +80,18 @@ class Trainer(abc.ABC):
             #  - Optional: Implement checkpoints. You can use torch.save() to
             #    save the model to the file specified by the checkpoints
             #    argument.
-            # ====== YOUR CODE: ======
-            raise NotImplementedError()
-            # ========================
+            train_res = self.train_epoch(dl_train, verbose=verbose, max_batches=kw.get('max_batches'))
+            test_res = self.test_epoch(dl_test, verbose=verbose, max_batches=kw.get('max_batches'))
+            train_acc.append(train_res.accuracy)
+            test_acc.append(test_res.accuracy)
+            mean_loss = sum(test_res.losses) / len(test_res.losses)
+            train_loss.append(sum(train_res.losses) / len(train_res.losses))
+            test_loss.append(mean_loss)
+            if isinstance(prev_mean_loss, float) and abs(mean_loss-prev_mean_loss) < 1e-3:
+                epochs_without_improvement += 1
+                if epochs_without_improvement == early_stopping:
+                    break
+            prev_mean_loss = mean_loss
 
         return FitResult(actual_num_epochs, train_loss, train_acc, test_loss, test_acc)
 
@@ -138,10 +148,10 @@ class Trainer(abc.ABC):
 
     @staticmethod
     def _foreach_batch(
-            dl: DataLoader,
-            forward_fn: Callable[[Any], BatchResult],
-            verbose=True,
-            max_batches=None,
+        dl: DataLoader,
+        forward_fn: Callable[[Any], BatchResult],
+        verbose=True,
+        max_batches=None,
     ) -> EpochResult:
         """
         Evaluates the given forward-function on batches from the given
@@ -192,6 +202,7 @@ class BlocksTrainer(Trainer):
 
     def train_batch(self, batch) -> BatchResult:
         X, y = batch
+
         # TODO: Train the Block model on one batch of data.
         #  - Forward pass
         #  - Backward pass
@@ -211,9 +222,9 @@ class BlocksTrainer(Trainer):
         X, y = batch
 
         # TODO: Evaluate the Block model on one batch of data.
-        # ====== YOUR CODE: ======
-        raise NotImplementedError()
-        # ========================
+        z = self.model.forward(X.reshape(X.shape[0], -1))
+        loss = self.loss_fn(z, y)
+        num_correct = torch.sum(torch.argmax(z, dim=1).eq(y)).item()
 
         return BatchResult(loss, num_correct)
 
