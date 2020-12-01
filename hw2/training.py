@@ -36,14 +36,14 @@ class Trainer(abc.ABC):
             model.to(self.device)
 
     def fit(
-        self,
-        dl_train: DataLoader,
-        dl_test: DataLoader,
-        num_epochs,
-        checkpoints: str = None,
-        early_stopping: int = None,
-        print_every=1,
-        **kw,
+            self,
+            dl_train: DataLoader,
+            dl_test: DataLoader,
+            num_epochs,
+            checkpoints: str = None,
+            early_stopping: int = None,
+            print_every=1,
+            **kw,
     ) -> FitResult:
         """
         Trains the model for multiple epochs with a given training set,
@@ -69,7 +69,7 @@ class Trainer(abc.ABC):
             verbose = False  # pass this to train/test_epoch.
             if epoch % print_every == 0 or epoch == num_epochs - 1:
                 verbose = True
-            self._print(f"--- EPOCH {epoch+1}/{num_epochs} ---", verbose)
+            self._print(f"--- EPOCH {epoch + 1}/{num_epochs} ---", verbose)
 
             # TODO: Train & evaluate for one epoch
             #  - Use the train/test_epoch methods.
@@ -138,10 +138,10 @@ class Trainer(abc.ABC):
 
     @staticmethod
     def _foreach_batch(
-        dl: DataLoader,
-        forward_fn: Callable[[Any], BatchResult],
-        verbose=True,
-        max_batches=None,
+            dl: DataLoader,
+            forward_fn: Callable[[Any], BatchResult],
+            verbose=True,
+            max_batches=None,
     ) -> EpochResult:
         """
         Evaluates the given forward-function on batches from the given
@@ -192,17 +192,19 @@ class BlocksTrainer(Trainer):
 
     def train_batch(self, batch) -> BatchResult:
         X, y = batch
-
         # TODO: Train the Block model on one batch of data.
         #  - Forward pass
         #  - Backward pass
         #  - Optimize params
         #  - Calculate number of correct predictions (make sure it's an int,
         #    not a tensor) as num_correct.
-        # ====== YOUR CODE: ======
-        raise NotImplementedError()
-        # ========================
-
+        z = self.model.forward(X.reshape(X.shape[0], -1))
+        loss = self.loss_fn(z, y)
+        self.optimizer.zero_grad()
+        dloss = self.loss_fn.backward()
+        self.model.backward(dloss)
+        self.optimizer.step()
+        num_correct = torch.sum(torch.argmax(z, dim=1).eq(y)).item()
         return BatchResult(loss, num_correct)
 
     def test_batch(self, batch) -> BatchResult:

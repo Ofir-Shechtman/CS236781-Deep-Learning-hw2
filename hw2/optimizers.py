@@ -71,10 +71,8 @@ class VanillaSGD(Optimizer):
             # TODO: Implement the optimizer step.
             #  Update the gradient according to regularization and then
             #  update the parameters tensor.
-            # ====== YOUR CODE: ======
-            raise NotImplementedError()
-            # ========================
-
+            dp += self.reg * p
+            p -= self.learn_rate * dp
 
 class MomentumSGD(Optimizer):
     def __init__(self, params, learn_rate=1e-3, reg=0, momentum=0.9):

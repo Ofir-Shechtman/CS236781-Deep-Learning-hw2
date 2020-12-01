@@ -304,7 +304,7 @@ class CrossEntropyLoss(Block):
         exps = torch.exp(x)
         grad = (exps.T / exps.sum(1)).T
         grad[N_range, y] -= 1
-        return grad / N
+        return grad * dout / N
 
     def params(self):
         return []
