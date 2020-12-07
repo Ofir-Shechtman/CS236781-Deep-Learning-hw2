@@ -244,10 +244,12 @@ class TorchTrainer(Trainer):
         #  - Backward pass
         #  - Optimize params
         #  - Calculate number of correct predictions
-        # ====== YOUR CODE: ======
-        raise NotImplementedError()
-        # ========================
-
+        z = self.model.forward(X)
+        loss = self.loss_fn(z, y)
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+        num_correct = torch.sum(torch.argmax(z, dim=1).eq(y)).item()
         return BatchResult(loss, num_correct)
 
     def test_batch(self, batch) -> BatchResult:
@@ -260,8 +262,8 @@ class TorchTrainer(Trainer):
             # TODO: Evaluate the PyTorch model on one batch of data.
             #  - Forward pass
             #  - Calculate number of correct predictions
-            # ====== YOUR CODE: ======
-            raise NotImplementedError()
-            # ========================
+            z = self.model.forward(X)
+            loss = self.loss_fn(z, y)
+            num_correct = torch.sum(torch.argmax(z, dim=1).eq(y)).item()
 
         return BatchResult(loss, num_correct)
