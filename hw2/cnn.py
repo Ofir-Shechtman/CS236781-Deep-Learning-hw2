@@ -25,7 +25,7 @@ class ConvClassifier(nn.Module):
             activation_type: str = "relu",
             activation_params: dict = {},
             pooling_type: str = "max",
-            pooling_params: dict = dict(kernel_size=3)
+            pooling_params: dict = dict(kernel_size=2, stride=2, padding=1)
     ):
         """
         :param in_size: Size of input images, e.g. (C,H,W).
