@@ -12,7 +12,7 @@ do
 	srun -c 2 --gres=gpu:1  --pty python -m hw2.experiments run-exp -n ${exp_name} -K $K -L $L -P $((L/2+1)) -H 100 --batches 50
 	done
 done
-: '
+
 echo "*** experiment 1.2 ***"
 
 for L in 2 4 8
@@ -51,5 +51,4 @@ do
         srun -c 2 --gres=gpu:1  --pty python -m hw2.experiments run-exp -n ${exp_name} -M resnet -K $K -L $L -P $((L/2+1)) -H 100 --batches 500
 done
 
-'
 echo "*** DONE ***"

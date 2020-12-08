@@ -21,7 +21,7 @@ class ConvClassifier(nn.Module):
             channels: list,
             pool_every: int,
             hidden_dims: list,
-            conv_params: dict = {},
+            conv_params: dict = dict(kernel_size=3),
             activation_type: str = "relu",
             activation_params: dict = {},
             pooling_type: str = "max",
