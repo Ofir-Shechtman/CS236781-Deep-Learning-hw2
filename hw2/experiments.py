@@ -96,7 +96,6 @@ def run_experiment(
                           num_epochs=epochs,
                           checkpoints=checkpoints,
                           early_stopping=early_stopping)
-
     save_experiment(run_name, out_dir, cfg, fit_res)
 
 

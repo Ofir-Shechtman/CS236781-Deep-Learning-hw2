@@ -250,7 +250,7 @@ class TorchTrainer(Trainer):
         loss.backward()
         self.optimizer.step()
         num_correct = torch.sum(torch.argmax(z, dim=1).eq(y)).item()
-        return BatchResult(loss, num_correct)
+        return BatchResult(loss.item(), num_correct)
 
     def test_batch(self, batch) -> BatchResult:
         X, y = batch
@@ -266,4 +266,4 @@ class TorchTrainer(Trainer):
             loss = self.loss_fn(z, y)
             num_correct = torch.sum(torch.argmax(z, dim=1).eq(y)).item()
 
-        return BatchResult(loss, num_correct)
+        return BatchResult(loss.item(), num_correct)
