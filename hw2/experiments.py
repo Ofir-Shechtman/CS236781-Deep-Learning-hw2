@@ -21,27 +21,27 @@ MODEL_TYPES = dict(
 
 
 def run_experiment(
-    run_name,
-    out_dir="./results",
-    seed=None,
-    device=None,
-    # Training params
-    bs_train=128,
-    bs_test=None,
-    batches=100,
-    epochs=100,
-    early_stopping=3,
-    checkpoints=None,
-    lr=1e-3,
-    reg=1e-3,
-    # Model params
-    filters_per_layer=[64],
-    layers_per_block=2,
-    pool_every=2,
-    hidden_dims=[1024],
-    model_type="cnn",
-    # You can add extra configuration for your experiments here
-    **kw,
+        run_name,
+        out_dir="./results",
+        seed=None,
+        device=None,
+        # Training params
+        bs_train=128,
+        bs_test=None,
+        batches=100,
+        epochs=100,
+        early_stopping=3,
+        checkpoints=None,
+        lr=1e-3,
+        reg=1e-3,
+        # Model params
+        filters_per_layer=[64],
+        layers_per_block=2,
+        pool_every=2,
+        hidden_dims=[1024],
+        model_type="cnn",
+        # You can add extra configuration for your experiments here
+        **kw,
 ):
     """
     Executes a single run of a Part3 experiment with a single configuration.
@@ -76,9 +76,25 @@ def run_experiment(
     #  - The fit results and all the experiment parameters will then be saved
     #   for you automatically.
     fit_res = None
-    # ====== YOUR CODE: ======
-    raise NotImplementedError()
-    # ========================
+    x0, y0 = ds_train[0]
+    in_size, num_classes = x0.shape, y0.shape
+    channels = [x for x in filters_per_layer for _ in range(layers_per_block)]
+    model = MODEL_TYPES.get(model_type)(in_size,
+                                        num_classes,
+                                        channels=channels,
+                                        pool_every=pool_every,
+                                        hidden_dims=hidden_dims,
+                                        **kw)
+    loss_fn = torch.nn.CrossEntropyLoss()
+    optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9)
+    trainer = training.TorchTrainer(model, loss_fn, optimizer, device)
+    dl_train = torch.utils.data.DataLoader(ds_train, bs_train, shuffle=False)
+    dl_test = torch.utils.data.DataLoader(ds_test, bs_test, shuffle=False)
+    fit_res = trainer.fit(dl_train=dl_train,
+                          dl_test=dl_test,
+                          num_epochs=epochs,
+                          checkpoints=checkpoints,
+                          early_stopping=early_stopping)
 
     save_experiment(run_name, out_dir, cfg, fit_res)
 
