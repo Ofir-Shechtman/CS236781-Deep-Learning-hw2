@@ -76,8 +76,9 @@ def run_experiment(
     #  - The fit results and all the experiment parameters will then be saved
     #   for you automatically.
     fit_res = None
-    x0, y0 = ds_train[0]
-    in_size, num_classes = x0.shape, y0.shape
+    x0, _ = ds_train[0]
+    in_size = x0.shape
+    num_classes = len(ds_train.classes)
     channels = [x for x in filters_per_layer for _ in range(layers_per_block)]
     model = MODEL_TYPES.get(model_type)(in_size,
                                         num_classes,

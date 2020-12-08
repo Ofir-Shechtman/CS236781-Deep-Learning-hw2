@@ -25,7 +25,7 @@ class ConvClassifier(nn.Module):
             activation_type: str = "relu",
             activation_params: dict = {},
             pooling_type: str = "max",
-            pooling_params: dict = {},
+            pooling_params: dict = dict(kernel_size=3)
     ):
         """
         :param in_size: Size of input images, e.g. (C,H,W).
@@ -185,14 +185,15 @@ class ResidualBlock(nn.Module):
         #  - Don't create layers which you don't use! This will prevent
         #    correct comparison in the test.
         main_layers = []
-        for in_channel, out_channel, kernel_size in zip([in_channels] + channels, channels[:-1], kernel_sizes):
+        full_channels = [in_channels] + channels
+        for in_channel, out_channel, kernel_size in zip(full_channels, channels[:-1], kernel_sizes):
             main_layers.append(
                 nn.Conv2d(in_channel, out_channel, kernel_size=kernel_size, bias=True, padding=(kernel_size - 1) // 2))
             main_layers.append(nn.Dropout2d(p=dropout))
             if batchnorm:
                 main_layers.append(nn.BatchNorm2d(out_channel))
             main_layers.append(ACTIVATIONS.get(activation_type)(**activation_params))
-        main_layers.append(nn.Conv2d(channels[-2], channels[-1], kernel_size=kernel_sizes[-1], bias=True,
+        main_layers.append(nn.Conv2d(full_channels[-2], full_channels[-1], kernel_size=kernel_sizes[-1], bias=True,
                                      padding=(kernel_sizes[-1] - 1) // 2))
         self.main_path = nn.Sequential(*main_layers)
 
@@ -246,7 +247,7 @@ class ResNetClassifier(ConvClassifier):
         #    without a POOL after them.
         #  - Use your own ResidualBlock implementation.
         channels = [in_channels] + self.channels
-        jumps = list(range(0, len(channels), self.pool_every))
+        jumps = list(range(0, len(channels)-1, self.pool_every))
         for i in jumps:
             layers.append(ResidualBlock(channels[i], channels[i+1:i+self.pool_every+1], kernel_sizes=[3] * len(channels[i+1:i+self.pool_every+1]),
                                         batchnorm=self.batchnorm, dropout=self.dropout,
