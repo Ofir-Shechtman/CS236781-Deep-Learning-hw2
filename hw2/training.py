@@ -87,7 +87,7 @@ class Trainer(abc.ABC):
             mean_loss = sum(test_res.losses) / len(test_res.losses)
             train_loss.append(sum(train_res.losses) / len(train_res.losses))
             test_loss.append(mean_loss)
-            if isinstance(prev_mean_loss, float) and abs(mean_loss-prev_mean_loss) < 1e-3:
+            if isinstance(prev_mean_loss, float) and abs(mean_loss-prev_mean_loss) < 1e-2:
                 epochs_without_improvement += 1
                 if epochs_without_improvement == early_stopping:
                     break
