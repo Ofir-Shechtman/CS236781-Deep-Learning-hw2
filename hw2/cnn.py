@@ -65,6 +65,7 @@ class ConvClassifier(nn.Module):
 
     def _make_feature_extractor(self):
         in_channels, in_h, in_w, = tuple(self.in_size)
+        print(f'feature_extractor in_size: {self.in_size}')
         # print(self.in_size)
         layers = []
         # TODO: Create the feature extractor part of the model:
@@ -86,6 +87,7 @@ class ConvClassifier(nn.Module):
         if len(self.channels) % self.pool_every:
             layers.append(ACTIVATIONS.get(self.activation_type)(**self.activation_params))
         seq = nn.Sequential(*layers)
+        print(f'feature_extractor: {seq}')
         return seq
 
     def _make_classifier(self):
@@ -106,6 +108,7 @@ class ConvClassifier(nn.Module):
         features_number = self.channels[-1] * (in_h // factor) * (in_w // factor)
         print(features_number)
         print((1, *self.in_size))'''
+        print(f'calling feature_extractor with zero vector of {self.in_size}, {torch.zeros((1, *self.in_size))}')
         features_number = self.feature_extractor(torch.zeros((1, *self.in_size)))
         size_in = features_number.reshape(features_number.shape[0], -1).shape[1]
         # print(f'features_number: {features_number.shape}, size_in: {size_in}')
