@@ -21,7 +21,7 @@ class ConvClassifier(nn.Module):
             channels: list,
             pool_every: int,
             hidden_dims: list,
-            conv_params: dict = dict(kernel_size=3),
+            conv_params: dict = dict(kernel_size=3, padding=1),
             activation_type: str = "relu",
             activation_params: dict = {},
             pooling_type: str = "max",
@@ -84,7 +84,7 @@ class ConvClassifier(nn.Module):
             layers.append(ACTIVATIONS.get(self.activation_type)(**self.activation_params))
             if (i + 1) % self.pool_every == 0:
                 layers.append(POOLINGS.get(self.pooling_type)(**self.pooling_params))
-        if len(self.channels) % self.pool_every:
+        if len(self.channels) % self.pool_every == 0:
             layers.append(ACTIVATIONS.get(self.activation_type)(**self.activation_params))
         seq = nn.Sequential(*layers)
         print(f'feature_extractor: {seq}')

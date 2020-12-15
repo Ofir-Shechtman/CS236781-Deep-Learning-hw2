@@ -92,6 +92,8 @@ class Trainer(abc.ABC):
                 epochs_without_improvement += 1
                 if epochs_without_improvement == early_stopping:
                     break
+            else:
+                epochs_without_improvement = 0
             prev_acc = test_res.accuracy
 
         return FitResult(actual_num_epochs, train_loss, train_acc, test_loss, test_acc)
