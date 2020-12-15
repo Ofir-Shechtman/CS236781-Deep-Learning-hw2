@@ -64,7 +64,7 @@ class Trainer(abc.ABC):
 
         best_acc = None
         epochs_without_improvement = 0
-        prev_mean_loss = None
+        prev_acc = None
 
         for epoch in range(num_epochs):
             verbose = False  # pass this to train/test_epoch.
@@ -84,14 +84,15 @@ class Trainer(abc.ABC):
             test_res = self.test_epoch(dl_test, verbose=verbose, max_batches=kw.get('max_batches'))
             train_acc.append(train_res.accuracy)
             test_acc.append(test_res.accuracy)
-            mean_loss = sum(test_res.losses) / len(test_res.losses)
-            train_loss.append(sum(train_res.losses) / len(train_res.losses))
-            test_loss.append(mean_loss)
-            if isinstance(prev_mean_loss, float) and abs(mean_loss-prev_mean_loss) < 1e-2:
+            #mean_loss = sum(test_res.losses) / len(test_res.losses)
+            #train_loss.append(sum(train_res.losses) / len(train_res.losses)
+            train_loss.append(train_res.losses)
+            test_loss.append(test_res.losses)
+            if isinstance(prev_acc, float) and abs(test_res.accuracy-prev_acc) < 0.25: #abs(mean_loss-prev_mean_loss) < 1e-2:
                 epochs_without_improvement += 1
                 if epochs_without_improvement == early_stopping:
                     break
-            prev_mean_loss = mean_loss
+            prev_acc = test_res.accuracy
 
         return FitResult(actual_num_epochs, train_loss, train_acc, test_loss, test_acc)
 
