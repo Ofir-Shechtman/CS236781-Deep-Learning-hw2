@@ -270,6 +270,6 @@ class YourCodeNet(ConvClassifier):
         #  For example, add batchnorm, dropout, skip connections, change conv
         #  filter sizes etc.
         # ====== YOUR CODE: ======
-        ConvClassifier(in_size, out_classes, channels, pool_every, hidden_dims)
+        ResNetClassifier(in_size, out_classes, channels, pool_every, hidden_dims, dropout=0.4)
 
     # ========================
