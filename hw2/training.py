@@ -86,8 +86,8 @@ class Trainer(abc.ABC):
             test_acc.append(test_res.accuracy)
             #mean_loss = sum(test_res.losses) / len(test_res.losses)
             #train_loss.append(sum(train_res.losses) / len(train_res.losses)
-            train_loss.append(train_res.losses)
-            test_loss.append(test_res.losses)
+            train_loss.extend(train_res.losses)
+            test_loss.extend(test_res.losses)
             if isinstance(prev_acc, float) and abs(test_res.accuracy-prev_acc) < 0.25: #abs(mean_loss-prev_mean_loss) < 1e-2:
                 epochs_without_improvement += 1
                 if epochs_without_improvement == early_stopping:
