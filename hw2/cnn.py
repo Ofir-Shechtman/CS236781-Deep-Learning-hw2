@@ -253,7 +253,6 @@ class ResNetClassifier(ConvClassifier):
         channels = [in_channels] + self.channels
         jumps = list(range(0, len(channels) - 1, self.pool_every))
         kernel_size = self.conv_params.get('kernel_size')
-        print(kernel_size)
         for i in jumps:
             layers.append(ResidualBlock(channels[i], channels[i + 1:i + self.pool_every + 1],
                                         kernel_sizes=[kernel_size] * len(channels[i + 1:i + self.pool_every + 1]),
