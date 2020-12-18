@@ -318,7 +318,7 @@ class Dropout(Block):
         """
         super().__init__()
         assert 0.0 <= p <= 1.0
-        self.p = p
+        self.p = 1-p
 
 
     def forward(self, x, **kw):
@@ -327,7 +327,7 @@ class Dropout(Block):
         #  differently a according to the current training_mode (train/test).
         mask = torch.ones(x.size())
         if self.training_mode:
-            mask = torch.bernoulli(mask * self.p) * (1 / (1 - self.p))
+            mask = torch.bernoulli(mask * self.p) * (1 / self.p)
         self.grad_cache["mask"] = mask
         return mask * x if self.training_mode else x
 
