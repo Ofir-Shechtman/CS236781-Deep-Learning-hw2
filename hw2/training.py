@@ -88,13 +88,13 @@ class Trainer(abc.ABC):
             #train_loss.append(sum(train_res.losses) / len(train_res.losses)
             train_loss.extend(train_res.losses)
             test_loss.extend(test_res.losses)
-            if best_acc and best_acc < test_res.accuracy: #abs(mean_loss-prev_mean_loss) < 1e-2:
+            if early_stopping and best_acc and best_acc < test_res.accuracy: #abs(mean_loss-prev_mean_loss) < 1e-2:
                 best_acc = test_res.accuracy
                 epochs_without_improvement = 0
-                if early_stopping and epochs_without_improvement == early_stopping:
-                    break
             else:
                 epochs_without_improvement += 1
+                if epochs_without_improvement == early_stopping:
+                    break
 
         return FitResult(actual_num_epochs, train_loss, train_acc, test_loss, test_acc)
 
