@@ -85,28 +85,30 @@ An equation: $e^{i\pi} -1 = 0$
 # Part 3 answers
 
 part3_q1 = r"""
-**Your answer:**
+1. The number of parameters for a Convolution layer is $Input_{featue\space map} ⋅ Output_{featue\space map} ⋅ Filter size$.<br>
+Therefore,<br>
+Regular Block: $256⋅256⋅3⋅3+256⋅256⋅3⋅3=1,179,648$<br>
+Bottleneck Block: $256⋅64⋅1⋅1+64⋅64⋅3⋅3+64⋅256⋅1⋅1=69,632$<br>
+we can see that the bottleneck reduces the number of parameters.
 
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
-
+2. the number of multiplication on a single convolution layer is **width ⋅ lengh** of each output feature map, multuply by
+the **#parameters** of the convolution.<br>
+Therefore,<br>
+Regular Block: $1179648⋅$**width⋅lengh**<br>
+Bottleneck Block: $69632⋅$**width⋅lengh**<br>
+we can see that the bottleneck reduces the number of operations.
 """
 
 part3_q2 = r"""
-**Your answer:**
+the number of multiplication on a single convolution layer is **width ⋅ lengh** of each output feature map, multuply by
+the **#parameters** of the convolution.<br>
+Therefore,<br>>
 
+Regular Block:1179648⋅**width ⋅ lengh**$<br>
+Bottleneck Block: 69632⋅**width ⋅ lengh**$<br>
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+Thus, we can see that the bottleneck immensily reduces the number of operations.
+
 
 """
 
