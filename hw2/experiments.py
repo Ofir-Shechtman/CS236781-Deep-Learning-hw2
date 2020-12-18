@@ -86,9 +86,9 @@ def run_experiment(
                                         pool_every=pool_every,
                                         hidden_dims=hidden_dims,
                                         **kw)
-    #print(model)
+    print(model)
     loss_fn = torch.nn.CrossEntropyLoss()
-    optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)#, momentum=0.9)
     trainer = training.TorchTrainer(model, loss_fn, optimizer, device)
     dl_train = torch.utils.data.DataLoader(ds_train, bs_train, shuffle=False)
     dl_test = torch.utils.data.DataLoader(ds_test, bs_test, shuffle=False)
