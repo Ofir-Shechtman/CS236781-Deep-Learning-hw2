@@ -88,7 +88,7 @@ def run_experiment(
                                         **kw)
     print(model)
     loss_fn = torch.nn.CrossEntropyLoss()
-    optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=reg)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=reg)#, momentum=0.9
     trainer = training.TorchTrainer(model, loss_fn, optimizer, device)
     dl_train = torch.utils.data.DataLoader(ds_train, bs_train, shuffle=False)
     dl_test = torch.utils.data.DataLoader(ds_test, bs_test, shuffle=False)
