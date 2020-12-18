@@ -67,6 +67,7 @@ class Trainer(abc.ABC):
         prev_acc = None
 
         for epoch in range(num_epochs):
+            actual_num_epochs+=1
             verbose = False  # pass this to train/test_epoch.
             if epoch % print_every == 0 or epoch == num_epochs - 1:
                 verbose = True

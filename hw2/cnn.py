@@ -280,6 +280,7 @@ class YourCodeNet(ConvClassifier):
                                   activation_params=dict(negative_slope=0.01),
                                   conv_params=dict(kernel_size=5, padding=1),
                                   pooling_type='avg',
+                                  pooling_params=dict(kernel_size=1, stride=1, padding=0),
                                   batchnorm=True, dropout=0.4,
                                   )
         return resnet._make_feature_extractor()
