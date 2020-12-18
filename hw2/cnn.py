@@ -65,7 +65,7 @@ class ConvClassifier(nn.Module):
 
     def _make_feature_extractor(self):
         in_channels, in_h, in_w, = tuple(self.in_size)
-        print(f'feature_extractor in_size: {self.in_size}')
+        # print(f'feature_extractor in_size: {self.in_size}')
         # print(self.in_size)
         layers = []
         # TODO: Create the feature extractor part of the model:
@@ -84,10 +84,11 @@ class ConvClassifier(nn.Module):
             layers.append(ACTIVATIONS.get(self.activation_type)(**self.activation_params))
             if (i + 1) % self.pool_every == 0:
                 layers.append(POOLINGS.get(self.pooling_type)(**self.pooling_params))
-        if len(self.channels) % self.pool_every == 0:
-            layers.append(ACTIVATIONS.get(self.activation_type)(**self.activation_params))
+        # print(f'len(self.channels): {len(self.channels)}, self.pool_every: {self.pool_every}')
+        # if len(self.channels) % self.pool_every == 0:
+        #    layers.append(ACTIVATIONS.get(self.activation_type)(**self.activation_params))
         seq = nn.Sequential(*layers)
-        print(f'feature_extractor: {seq}')
+        # print(f'feature_extractor: {seq}')
         return seq
 
     def _make_classifier(self):
@@ -108,7 +109,7 @@ class ConvClassifier(nn.Module):
         features_number = self.channels[-1] * (in_h // factor) * (in_w // factor)
         print(features_number)
         print((1, *self.in_size))'''
-        print(f'calling feature_extractor with zero vector of {self.in_size}, {torch.zeros((1, *self.in_size))}')
+        # print(f'calling feature_extractor with zero vector of {self.in_size}, {torch.zeros((1, *self.in_size))}')
         features_number = self.feature_extractor(torch.zeros((1, *self.in_size)))
         size_in = features_number.reshape(features_number.shape[0], -1).shape[1]
         # print(f'features_number: {features_number.shape}, size_in: {size_in}')
@@ -250,9 +251,12 @@ class ResNetClassifier(ConvClassifier):
         #    without a POOL after them.
         #  - Use your own ResidualBlock implementation.
         channels = [in_channels] + self.channels
-        jumps = list(range(0, len(channels)-1, self.pool_every))
+        jumps = list(range(0, len(channels) - 1, self.pool_every))
+        kernel_size = self.conv_params.get('kernel_size')
+        print(kernel_size)
         for i in jumps:
-            layers.append(ResidualBlock(channels[i], channels[i+1:i+self.pool_every+1], kernel_sizes=[3] * len(channels[i+1:i+self.pool_every+1]),
+            layers.append(ResidualBlock(channels[i], channels[i + 1:i + self.pool_every + 1],
+                                        kernel_sizes=[kernel_size] * len(channels[i + 1:i + self.pool_every + 1]),
                                         batchnorm=self.batchnorm, dropout=self.dropout,
                                         activation_type=self.activation_type, activation_params=self.activation_params))
             if i != jumps[-1]:
@@ -270,6 +274,30 @@ class YourCodeNet(ConvClassifier):
         #  For example, add batchnorm, dropout, skip connections, change conv
         #  filter sizes etc.
         # ====== YOUR CODE: ======
-        ResNetClassifier(in_size, out_classes, channels, pool_every, hidden_dims, dropout=0.4)
 
+    def _make_feature_extractor(self):
+        resnet = ResNetClassifier(self.in_size, self.out_classes, self.channels, self.pool_every, self.hidden_dims,
+                                  activation_type='lrelu',
+                                  activation_params=dict(negative_slope=0.01),
+                                  conv_params=dict(kernel_size=5, padding=1),
+                                  pooling_type='avg',
+                                  batchnorm=True, dropout=0.4,
+                                  )
+        return resnet._make_feature_extractor()
+
+    def _make_classifier(self):
+        layers = []
+
+        features_number = self.feature_extractor(torch.zeros((1, *self.in_size)))
+        size_in = features_number.reshape(features_number.shape[0], -1).shape[1]
+        # print(f'features_number: {features_number.shape}, size_in: {size_in}')
+        layers.append(nn.Linear(size_in, self.hidden_dims[0]))
+        layers.append(nn.LeakyReLU(negative_slope=0.01))
+        for i in range(len(self.hidden_dims) - 1):
+            layers.append(nn.Linear(self.hidden_dims[i], self.hidden_dims[i + 1]))
+            layers.append(nn.LeakyReLU(negative_slope=0.01))
+            layers.append(nn.Dropout2d(p=0.3))
+        layers.append(nn.Linear(self.hidden_dims[-1], self.out_classes))
+        seq = nn.Sequential(*layers)
+        return seq
     # ========================
