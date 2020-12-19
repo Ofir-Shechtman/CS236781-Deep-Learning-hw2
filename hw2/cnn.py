@@ -281,7 +281,7 @@ class YourCodeNet(ConvClassifier):
                                   conv_params=dict(kernel_size=5, padding=1),
                                   pooling_type='avg',
                                   pooling_params=dict(kernel_size=1, stride=1, padding=0),
-                                  batchnorm=True, dropout=0.4,
+                                  batchnorm=True, dropout=0.5,
                                   )
         return resnet._make_feature_extractor()
 
@@ -293,6 +293,7 @@ class YourCodeNet(ConvClassifier):
         # print(f'features_number: {features_number.shape}, size_in: {size_in}')
         layers.append(nn.Linear(size_in, self.hidden_dims[0]))
         layers.append(nn.LeakyReLU(negative_slope=0.01))
+        layers.append(nn.Dropout2d(p=0.3))
         for i in range(len(self.hidden_dims) - 1):
             layers.append(nn.Linear(self.hidden_dims[i], self.hidden_dims[i + 1]))
             layers.append(nn.LeakyReLU(negative_slope=0.01))
