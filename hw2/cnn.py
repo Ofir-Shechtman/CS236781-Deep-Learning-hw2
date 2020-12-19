@@ -264,24 +264,24 @@ class ResNetClassifier(ConvClassifier):
         return seq
 
 
-class YourCodeNet(ConvClassifier):
+class YourCodeNet(ResNetClassifier):
     def __init__(self, in_size, out_classes, channels, pool_every, hidden_dims):
-        super().__init__(in_size, out_classes, channels, pool_every, hidden_dims)
+        super().__init__(in_size, out_classes, channels, pool_every, hidden_dims, dropout=0.4, batchnorm=True)
 
         # TODO: Change whatever you want about the ConvClassifier to try to
         #  improve it's results on CIFAR-10.
         #  For example, add batchnorm, dropout, skip connections, change conv
         #  filter sizes etc.
         # ====== YOUR CODE: ======
-
+'''
     def _make_feature_extractor(self):
         resnet = ResNetClassifier(self.in_size, self.out_classes, self.channels, self.pool_every, self.hidden_dims,
                                   activation_type='lrelu',
                                   activation_params=dict(negative_slope=0.01),
-                                  conv_params=dict(kernel_size=5, padding=1),
-                                  pooling_type='avg',
-                                  pooling_params=dict(kernel_size=1, stride=1, padding=0),
-                                  batchnorm=True, dropout=0.5,
+                                  #conv_params=dict(kernel_size=5, padding=1),
+                                  #pooling_type='avg',
+                                  #pooling_params=dict(kernel_size=1, stride=1, padding=0),
+                                  batchnorm=True, dropout=0.4,
                                   )
         return resnet._make_feature_extractor()
 
@@ -300,5 +300,5 @@ class YourCodeNet(ConvClassifier):
             layers.append(nn.Dropout2d(p=0.3))
         layers.append(nn.Linear(self.hidden_dims[-1], self.out_classes))
         seq = nn.Sequential(*layers)
-        return seq
+        return seq'''
     # ========================
